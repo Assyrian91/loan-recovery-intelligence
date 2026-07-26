@@ -1,0 +1,17 @@
+principal
+interest_rate
+term_months
+total_payments_made
+late_payment_count
+pct_payments_late
+avg_days_late
+max_days_late_ever
+most_recent_days_late
+income
+age
+credit_score
+loan_age_months
+employment_status_Part-time
+employment_status_Retired
+employment_status_Self-employed
+employment_status_Unemployed
