@@ -6,26 +6,36 @@ Uses direct psycopg2 connection on port 5432 (matching the pattern used
 across the other Assyrian AI projects — the transaction pooler on 6543
 is for Power BI/general use, direct 5432 for scripted ingestion).
 
-Set your connection string as an environment variable before running:
+Reads connection details from a .env file in the project root:
 
-    setx SUPABASE_DB_URL "postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres"
+    DB_HOST=db.YOUR_PROJECT.supabase.co
+    DB_PORT=5432
+    DB_NAME=postgres
+    DB_USER=postgres
+    DB_PASSWORD=your_actual_password
 
-then restart your terminal so it picks up the variable, or just set it
-for the current session:
-
-    $env:SUPABASE_DB_URL = "postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres"
+.env is gitignored — never commit it.
 """
 
 import os
 import pandas as pd
 import psycopg2
 from psycopg2.extras import execute_values
+from dotenv import load_dotenv
 
-DB_URL = os.environ.get("SUPABASE_DB_URL")
-if not DB_URL:
+load_dotenv()  # reads variables from a .env file in the project root
+
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT", "5432")
+DB_NAME = os.environ.get("DB_NAME", "postgres")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+
+if not all([DB_HOST, DB_USER, DB_PASSWORD]):
     raise SystemExit(
-        "SUPABASE_DB_URL environment variable not set. "
-        "See the docstring at the top of this file for how to set it."
+        "Missing DB_HOST, DB_USER, or DB_PASSWORD. Make sure you have a .env "
+        "file in the project root containing:\n"
+        "DB_HOST=...\nDB_PORT=5432\nDB_NAME=postgres\nDB_USER=...\nDB_PASSWORD=..."
     )
 
 DATA_DIR = "data/raw"
@@ -56,7 +66,7 @@ TABLES = [
 
 def load_table(conn, table_name: str, csv_path: str, columns: list):
     df = pd.read_csv(csv_path)
-    df = df[columns]  # enforce column order matches table definition
+    df = df[columns]
 
     records = [tuple(row) for row in df.itertuples(index=False, name=None)]
     col_list = ", ".join(columns)
@@ -69,9 +79,11 @@ def load_table(conn, table_name: str, csv_path: str, columns: list):
 
 
 def main():
-    conn = psycopg2.connect(DB_URL)
+    conn = psycopg2.connect(
+        host=DB_HOST, port=DB_PORT, dbname=DB_NAME,
+        user=DB_USER, password=DB_PASSWORD,
+    )
     try:
-        # Truncate first (in FK-safe order) so this script is safely re-runnable
         with conn.cursor() as cur:
             cur.execute("""
                 TRUNCATE TABLE
