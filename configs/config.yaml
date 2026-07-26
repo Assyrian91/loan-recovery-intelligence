@@ -1,0 +1,16 @@
+database:
+  schema: loan_recovery
+  # connection string comes from env var SUPABASE_DB_URL, not stored here
+
+data_generation:
+  n_customers: 5000
+  seed: 42
+
+model:
+  target: status  # predicting default vs active/paid_off
+  artifact_path: models/loan_default_model.joblib
+
+recommendation_engine:
+  risk_thresholds:
+    high: 0.70
+    medium: 0.40

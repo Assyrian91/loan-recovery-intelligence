@@ -1,0 +1,7 @@
+-- Views built on top of loan_recovery tables, to be added as the
+-- feature engineering and recommendation engine take shape.
+--
+-- Planned:
+--   loan_recovery.v_current_delinquency   -- latest cumulative days-late per loan
+--   loan_recovery.v_action_success_rates  -- historical success rate per action_type,
+--                                             replacing the churn project's assumed constants

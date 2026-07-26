@@ -1,0 +1,23 @@
+# Data (generated locally, not committed — see src/data_generation/generate_data.py)
+data/raw/*.csv
+data/processed/*.csv
+
+# Model artifacts
+models/*.joblib
+models/*.pkl
+mlruns/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Env / secrets
+.env
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
